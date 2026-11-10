@@ -1,9 +1,6 @@
 """
-Web-Based Complex Code Testing Dashboard (Python Edition)
-SDM College of Engineering & Technology, Dharwad
-Department of Computer Science & Engineering
-Course: Software Testing (22UCSES731)
-Author: Amogh S Patil (2SDS23CS011)
+TestPulse — Complex Code Testing Dashboard (Python Edition)
+Automated Multi-Tool Software Testing & Quality Assurance Platform
 """
 
 import os
@@ -21,10 +18,16 @@ def home():
 def health():
     return jsonify({
         "status": "healthy",
-        "service": "Complex Code Testing Dashboard (Python)",
-        "author": "Amogh S Patil (2SDS23CS011)",
-        "institution": "SDMCET Dharwad",
-        "version": "1.0.0"
+        "service": "TestPulse — Complex Code Testing Dashboard",
+        "version": "2.4.0",
+        "tools_integrated": [
+            "PyTest",
+            "Coverage.py",
+            "Flake8 / Pylint",
+            "Bandit Security",
+            "PEP 8 Standards",
+            "McCabe Cyclomatic Defect Predictor"
+        ]
     })
 
 @app.route('/api/samples', methods=['GET'])
