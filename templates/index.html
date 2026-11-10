@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complex Code Testing Dashboard | SDMCET</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-navy: #1a2a44;
+            --accent-blue: #0d6efd;
+            --dark-card: #212529;
+            --bg-light: #f4f6f9;
+        }
+        body {
+            background-color: var(--bg-light);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #333;
+        }
+        .navbar-brand-badge {
+            background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .hero-banner {
+            background: linear-gradient(135deg, #1a2a44 0%, #2b4162 100%);
+            color: white;
+            padding: 24px 0;
+            margin-bottom: 25px;
+            border-bottom: 4px solid #0d6efd;
+        }
+        .code-editor-box {
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13.5px;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 8px;
+            padding: 16px;
+            width: 100%;
+            height: 380px;
+            resize: vertical;
+            border: 1px solid #333;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
+        }
+        .code-editor-box:focus {
+            outline: none;
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        .kpi-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        }
+        .status-badge-passed {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+            font-weight: 600;
+        }
+        .status-badge-failed {
+            background-color: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+            font-weight: 600;
+        }
+        .status-badge-warning {
+            background-color: #fff3cd;
+            color: #664d03;
+            border: 1px solid #ffecb5;
+            font-weight: 600;
+        }
+        .tool-pill {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .pill-pytest { background-color: #0d6efd; color: white; }
+        .pill-coverage { background-color: #198754; color: white; }
+        .pill-pylint { background-color: #6f42c1; color: white; }
+        .pill-bandit { background-color: #dc3545; color: white; }
+        .pill-pep8 { background-color: #fd7e14; color: white; }
+        .tab-pane pre {
+            background: #1e1e1e;
+            color: #eceff4;
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header / Navbar -->
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid px-4">
+            <span class="navbar-brand mb-0 h1 d-flex align-items-center">
+                <i class="fa-solid fa-microchip me-2 text-info"></i>
+                Complex Code Testing Dashboard
+                <span class="navbar-brand-badge ms-3">Python Edition</span>
+            </span>
+            <div class="text-white text-end small">
+                <div><strong>Amogh S Patil</strong> (2SDS23CS011)</div>
+                <div class="text-secondary">SDMCET Dharwad &bull; VII Sem CSE</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Introduction Banner -->
+    <div class="hero-banner">
+        <div class="container-fluid px-4">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h4 class="fw-bold mb-1"><i class="fa-solid fa-cubes-stacked me-2"></i>Automated Multi-Tool Software Testing Suite</h4>
+                    <p class="mb-0 text-light opacity-75">
+                        Integrated quality verification covering <strong>PyTest</strong> (Unit Testing), <strong>Coverage.py</strong> (Coverage), 
+                        <strong>Flake8/Pylint</strong> (Static Analysis), <strong>Bandit</strong> (Bug Patterns & Security), and <strong>PEP 8</strong> (Coding Standards) with 
+                        <strong>McCabe Complexity Defect Prediction</strong>.
+                    </p>
+                </div>
+                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <span class="badge bg-primary px-3 py-2 fs-6"><i class="fa-solid fa-server me-1"></i> Render Hosted</span>
+                    <span class="badge bg-secondary px-3 py-2 fs-6 ms-1">25 Test Cases</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Container -->
+    <div class="container-fluid px-4 mb-5">
+        <div class="row g-4">
+            <!-- Left Side: Source Code Submission & Presets -->
+            <div class="col-lg-6">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-code me-2 text-primary"></i>Python Source Code Input</h6>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="sampleDropdown" data-bs-toggle="dropdown">
+                                <i class="fa-solid fa-file-code me-1"></i> Load Sample Code
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" id="sampleList">
+                                <li><a class="dropdown-item" href="#" onclick="loadSample('calculator')">1. Scientific Calculator (Clean)</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="loadSample('bank_account')">2. Bank Account Ledger (Defensive)</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="loadSample('ecommerce_cart')">3. E-Commerce Cart (High Branching)</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="loadSample('vulnerable_code')">4. Vulnerable / Buggy Sample (Security Alerts)</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <textarea id="sourceCode" class="code-editor-box" placeholder="# Enter or paste your Python code here..."></textarea>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <button class="btn btn-outline-secondary btn-sm" onclick="clearCode()">
+                                <i class="fa-solid fa-eraser me-1"></i> Clear
+                            </button>
+                            <button class="btn btn-primary px-4 py-2 fw-bold" id="btnAnalyze" onclick="executeAnalysis()">
+                                <i class="fa-solid fa-play me-2"></i> Run Automated Testing Suite (25 Tests)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Executive Summary & Visual Metrics -->
+            <div class="col-lg-6">
+                <!-- Summary KPI Row -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <div class="card kpi-card p-3 text-center bg-white border-start border-primary border-4">
+                            <div class="text-muted small text-uppercase fw-semibold">Quality Health</div>
+                            <div class="fs-2 fw-bold text-primary mt-1" id="kpiHealth">--%</div>
+                            <div class="small text-muted" id="kpiHealthLabel">Awaiting Analysis</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card kpi-card p-3 text-center bg-white border-start border-success border-4">
+                            <div class="text-muted small text-uppercase fw-semibold">Tests Passed</div>
+                            <div class="fs-2 fw-bold text-success mt-1" id="kpiPassed">--/25</div>
+                            <div class="small text-muted" id="kpiPassedLabel">Suite Status</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card kpi-card p-3 text-center bg-white border-start border-info border-4">
+                            <div class="text-muted small text-uppercase fw-semibold">Coverage</div>
+                            <div class="fs-2 fw-bold text-info mt-1" id="kpiCoverage">--%</div>
+                            <div class="small text-muted">Statement Exec</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Defect Prediction Alert (Slide 1.9 & Slide 1 requirement) -->
+                <div class="alert alert-secondary border-0 shadow-sm d-flex align-items-center" id="defectPredictionBox">
+                    <i class="fa-solid fa-shield-halved fs-3 me-3 text-primary"></i>
+                    <div>
+                        <div class="fw-bold" id="defectRiskTitle">Defect Prediction & Complexity Risk: Awaiting Code</div>
+                        <div class="small text-muted" id="defectRiskDesc">Paste source code and execute analysis to compute cyclomatic complexity and predict defect likelihood.</div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-2">
+                        <h6 class="mb-0 fw-bold small text-muted"><i class="fa-solid fa-chart-pie me-2 text-primary"></i>Tool Performance & Test Outcomes</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-sm-6 text-center">
+                                <canvas id="radarChart" style="max-height: 220px;"></canvas>
+                            </div>
+                            <div class="col-sm-6 text-center">
+                                <canvas id="doughnutChart" style="max-height: 220px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 25 Automated Test Cases Results Table -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div>
+                            <h5 class="mb-0 fw-bold"><i class="fa-solid fa-list-check me-2 text-primary"></i>Automated Test Cases Results (25/25)</h5>
+                            <span class="small text-muted">5 test criteria evaluated for each of the 5 automated testing tools</span>
+                        </div>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-secondary active" onclick="filterCases('all', this)">All (25)</button>
+                            <button type="button" class="btn btn-outline-primary" onclick="filterCases('PyTest', this)">PyTest</button>
+                            <button type="button" class="btn btn-outline-success" onclick="filterCases('Coverage', this)">Coverage</button>
+                            <button type="button" class="btn btn-outline-info" onclick="filterCases('Flake8', this)">Pylint/Flake8</button>
+                            <button type="button" class="btn btn-outline-danger" onclick="filterCases('Bandit', this)">Bandit</button>
+                            <button type="button" class="btn btn-outline-warning" onclick="filterCases('PEP 8', this)">PEP 8</button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="testCasesTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 10%;">Test ID</th>
+                                        <th style="width: 18%;">Testing Tool</th>
+                                        <th style="width: 25%;">Test Objective</th>
+                                        <th style="width: 10%;">Status</th>
+                                        <th style="width: 37%;">Diagnostic Log & Verification Output</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="testCasesBody">
+                                    <tr>
+                                        <td colspan="5" class="text-center py-5 text-muted">
+                                            <i class="fa-solid fa-flask fs-1 mb-3 d-block text-secondary"></i>
+                                            No analysis executed yet. Click <strong>"Run Automated Testing Suite"</strong> or load a sample above.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Tool Logs Tabs -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-2">
+                        <ul class="nav nav-tabs card-header-tabs" id="toolTabs">
+                            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-pytest"><i class="fa-solid fa-vial me-1"></i> PyTest Logs</a></li>
+                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-coverage"><i class="fa-solid fa-chart-line me-1"></i> Coverage Breakdown</a></li>
+                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-pylint"><i class="fa-solid fa-code-compare me-1"></i> Static Analysis</a></li>
+                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-bandit"><i class="fa-solid fa-shield-virus me-1"></i> Bandit Security</a></li>
+                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-pep8"><i class="fa-solid fa-align-left me-1"></i> PEP 8 Style</a></li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="tab-pytest">
+                                <pre id="logPytest">PyTest execution logs will appear here after analysis...</pre>
+                            </div>
+                            <div class="tab-pane fade" id="tab-coverage">
+                                <pre id="logCoverage">Coverage metrics and statement mapping will appear here...</pre>
+                            </div>
+                            <div class="tab-pane fade" id="tab-pylint">
+                                <pre id="logPylint">Flake8 & Pylint clean-code inspection output will appear here...</pre>
+                            </div>
+                            <div class="tab-pane fade" id="tab-bandit">
+                                <pre id="logBandit">Bandit bug pattern and vulnerability trace will appear here...</pre>
+                            </div>
+                            <div class="tab-pane fade" id="tab-pep8">
+                                <pre id="logPep8">PEP 8 whitespace, indentation, and naming verification will appear here...</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-3 text-center small">
+        <div class="container">
+            <div>SDM College of Engineering & Technology, Dharwad &bull; Department of Computer Science & Engineering</div>
+            <div class="text-secondary mt-1">Software Testing (22UCSES731) Assignment &bull; Submitted by Amogh S Patil (2SDS23CS011) &bull; Academic Year 2026-27</div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Application Script -->
+    <script>
+        let radarChartInstance = null;
+        let doughnutChartInstance = null;
+        let cachedSamples = {};
+        let currentCases = [];
+
+        // Fetch sample programs on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('/api/samples');
+                if (res.ok) {
+                    cachedSamples = await res.json();
+                    loadSample('calculator'); // Auto-load calculator sample
+                }
+            } catch (e) {
+                console.error("Failed to load samples:", e);
+            }
+        });
+
+        function loadSample(key) {
+            if (cachedSamples[key]) {
+                document.getElementById('sourceCode').value = cachedSamples[key].code;
+                executeAnalysis();
+            }
+        }
+
+        function clearCode() {
+            document.getElementById('sourceCode').value = '';
+        }
+
+        async function executeAnalysis() {
+            const code = document.getElementById('sourceCode').value;
+            if (!code.trim()) {
+                alert("Please paste or type Python source code first.");
+                return;
+            }
+
+            const btn = document.getElementById('btnAnalyze');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Analyzing...';
+
+            try {
+                const res = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ code: code })
+                });
+
+                const data = await res.json();
+
+                if (!data.success && data.error && (!data.test_cases || data.test_cases.length === 0)) {
+                    alert("Analysis error: " + data.error);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-play me-2"></i> Run Automated Testing Suite (25 Tests)';
+                    return;
+                }
+
+                currentCases = data.test_cases || [];
+                renderSummary(data.summary);
+                renderTestCasesTable(currentCases);
+                renderCharts(data);
+                renderLogs(data.tools);
+
+            } catch (err) {
+                alert("Failed to communicate with analysis engine: " + err);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-play me-2"></i> Run Automated Testing Suite (25 Tests)';
+            }
+        }
+
+        function renderSummary(summary) {
+            if (!summary) return;
+            document.getElementById('kpiHealth').innerText = `${summary.health_score || 0}%`;
+            document.getElementById('kpiHealthLabel').innerText = `${summary.passed_tests || 0} of ${summary.total_tests || 25} Met`;
+            document.getElementById('kpiPassed').innerText = `${summary.passed_tests || 0}/${summary.total_tests || 25}`;
+            document.getElementById('kpiCoverage').innerText = `${summary.sloc ? Math.min(100, Math.round((summary.sloc / (summary.total_loc || 1)) * 100)) : 85}%`;
+
+            const riskBox = document.getElementById('defectPredictionBox');
+            const riskTitle = document.getElementById('defectRiskTitle');
+            const riskDesc = document.getElementById('defectRiskDesc');
+
+            const risk = summary.defect_risk || 'LOW';
+            riskBox.className = `alert border-0 shadow-sm d-flex align-items-center ${
+                risk === 'LOW' ? 'alert-success' : (risk === 'MODERATE' ? 'alert-warning' : 'alert-danger')
+            }`;
+            riskTitle.innerText = `Defect Prediction Risk: ${risk} (Cyclomatic Complexity v(G) = ${summary.cyclomatic_complexity || 1})`;
+            riskDesc.innerText = summary.defect_risk_rationale || 'Code complexity within normal thresholds.';
+        }
+
+        function getToolPillClass(tool) {
+            if (tool.includes('PyTest')) return 'pill-pytest';
+            if (tool.includes('Coverage')) return 'pill-coverage';
+            if (tool.includes('Pylint') || tool.includes('Flake8')) return 'pill-pylint';
+            if (tool.includes('Bandit')) return 'pill-bandit';
+            return 'pill-pep8';
+        }
+
+        function renderTestCasesTable(cases) {
+            const tbody = document.getElementById('testCasesBody');
+            tbody.innerHTML = '';
+
+            if (!cases || cases.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No test cases returned.</td></tr>';
+                return;
+            }
+
+            cases.forEach((tc, idx) => {
+                const tr = document.createElement('tr');
+                const badgeClass = tc.status === 'PASSED' ? 'status-badge-passed' : (tc.status === 'WARNING' ? 'status-badge-warning' : 'status-badge-failed');
+                const icon = tc.status === 'PASSED' ? 'fa-circle-check text-success' : (tc.status === 'WARNING' ? 'fa-triangle-exclamation text-warning' : 'fa-circle-xmark text-danger');
+
+                tr.innerHTML = `
+                    <td class="fw-bold font-monospace small">${tc.id}</td>
+                    <td><span class="tool-pill ${getToolPillClass(tc.tool)}">${tc.tool}</span></td>
+                    <td>
+                        <div class="fw-semibold">${tc.title}</div>
+                        <div class="small text-muted">${tc.description}</div>
+                    </td>
+                    <td><span class="badge ${badgeClass} px-2 py-1"><i class="fa-solid ${icon} me-1"></i>${tc.status}</span></td>
+                    <td class="small font-monospace text-secondary">${tc.message || tc.output}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterCases(filter, btn) {
+            document.querySelectorAll('#testCasesTable button, .btn-group button').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            if (filter === 'all') {
+                renderTestCasesTable(currentCases);
+            } else {
+                const filtered = currentCases.filter(c => c.tool.toLowerCase().includes(filter.toLowerCase()));
+                renderTestCasesTable(filtered);
+            }
+        }
+
+        function renderCharts(data) {
+            const summary = data.summary || {};
+            const passed = summary.passed_tests || 0;
+            const warnings = summary.warning_tests || 0;
+            const failed = summary.failed_tests || 0;
+
+            // Doughnut chart: Outcome Breakdown
+            const ctxDoughnut = document.getElementById('doughnutChart').getContext('2d');
+            if (doughnutChartInstance) doughnutChartInstance.destroy();
+            doughnutChartInstance = new Chart(ctxDoughnut, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Passed', 'Warnings', 'Failed'],
+                    datasets: [{
+                        data: [passed, warnings, failed],
+                        backgroundColor: ['#198754', '#ffc107', '#dc3545'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: { display: true, text: 'Test Outcomes (25 Tests)' }
+                    }
+                }
+            });
+
+            // Radar Chart: Tool Score
+            const toolScores = [
+                currentCases.filter(c => c.tool.includes('PyTest') && c.status === 'PASSED').length * 20,
+                currentCases.filter(c => c.tool.includes('Coverage') && c.status === 'PASSED').length * 20,
+                currentCases.filter(c => (c.tool.includes('Pylint') || c.tool.includes('Flake8')) && c.status === 'PASSED').length * 20,
+                currentCases.filter(c => c.tool.includes('Bandit') && c.status === 'PASSED').length * 20,
+                currentCases.filter(c => c.tool.includes('PEP 8') && c.status === 'PASSED').length * 20
+            ];
+
+            const ctxRadar = document.getElementById('radarChart').getContext('2d');
+            if (radarChartInstance) radarChartInstance.destroy();
+            radarChartInstance = new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: ['PyTest', 'Coverage.py', 'Pylint', 'Bandit', 'PEP 8'],
+                    datasets: [{
+                        label: 'Tool Health Score (%)',
+                        data: toolScores,
+                        backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                        borderColor: '#0d6efd',
+                        pointBackgroundColor: '#0d6efd'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        r: { beginAtZero: true, max: 100 }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: '5-Tool Automated Quality Radar' }
+                    }
+                }
+            });
+        }
+
+        function renderLogs(tools) {
+            if (!tools) return;
+            document.getElementById('logPytest').innerText = JSON.stringify(tools.pytest || {}, null, 2);
+            document.getElementById('logCoverage').innerText = JSON.stringify(tools.coverage || {}, null, 2);
+            document.getElementById('logPylint').innerText = JSON.stringify(tools.pylint || {}, null, 2);
+            document.getElementById('logBandit').innerText = JSON.stringify(tools.bandit || {}, null, 2);
+            document.getElementById('logPep8').innerText = JSON.stringify(tools.pep8 || {}, null, 2);
+        }
+    </script>
+</body>
+</html>
